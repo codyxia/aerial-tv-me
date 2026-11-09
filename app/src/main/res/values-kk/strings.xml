@@ -316,4 +316,19 @@
     <string name="kids_blocked">«%s» мұнда қолжетімсіз</string>
     <string name="kids_warn">%d мин қалды</string>
     <string name="kids_warn_break">%d минуттан кейін үзіліс</string>
+
+    <!-- Kids gate: the PIN or a question, when leaving the mode or adding time (settings/KidsGate) -->
+    <string name="st_kids_gate">Ата-ананы тексеру</string>
+    <string name="st_kids_gate_hint">Балалар режимінен шыққанда немесе уақыт қосқанда не сұралады. PIN сенімдірек: бала сұрақтарға жауап бере алады.</string>
+    <string name="st_kids_gate_exit">Сұрақпен шығу</string>
+    <string name="st_kids_gate_exit_hint">Өшірулі: сұрақ тек уақыт қосады, шығу үшін PIN керек. Қосулы: дұрыс жауап та режимнен шығарады.</string>
+    <string name="gate_title">Ата-ананы тексеру</string>
+    <string name="gate_pin">PIN</string>
+    <string name="gate_math">Математика</string>
+    <string name="gate_pinyin">Пиньинь</string>
+    <string name="gate_english">Ағылшын тілі</string>
+    <string name="gate_common">Жалпы білім</string>
+    <string name="gate_hint">Жалғастыру үшін жауап беріңіз. Сұрақ PIN-нен оңай, бала оған жауап бере алады.</string>
+    <string name="gate_wrong">Дұрыс емес. Мына сұрақты көріңіз.</string>
+    <string name="gate_use_pin">PIN енгізу</string>
 </resources>

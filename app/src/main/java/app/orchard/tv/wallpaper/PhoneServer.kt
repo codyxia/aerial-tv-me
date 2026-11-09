@@ -18,6 +18,7 @@ import app.orchard.tv.apps.SourceDevice
 import app.orchard.tv.apps.SourceLooks
 import app.orchard.tv.apps.TileArtFactory
 import app.orchard.tv.settings.AerialSettings
+import app.orchard.tv.settings.KidsGate
 import app.orchard.tv.settings.KidsLock
 import app.orchard.tv.settings.Restricted
 import app.orchard.tv.settings.RestrictedKind
@@ -473,6 +474,8 @@ class PhoneServer private constructor(private val context: Context, private val 
             // The whole setup, for the page's editor; changing it takes the PIN.
             .put("blockOthers", r.blockOthers)
             .put("guard", HomeGuardService.isRunning)
+            .put("gate", AerialSettings.kidsGate.key)
+            .put("gateExit", AerialSettings.kidsGateExit)
             .put("weekdayMinutes", r.rules.weekdayMinutes)
             .put("weekendMinutes", r.rules.weekendMinutes)
             .put("breakEvery", r.rules.breakEvery)
@@ -506,10 +509,14 @@ class PhoneServer private constructor(private val context: Context, private val 
         val allowed = f["allowed"]?.split('\n')?.map { it.trim() }?.filter { it in known }?.distinct() ?: Restricted.allowed
         val on = f["enabled"]?.let { it == "1" } ?: Restricted.enabled
         val kind = f["kind"]?.let { RestrictedKind.of(it) } ?: Restricted.kind
+        val gate = f["gate"]?.let { KidsGate.of(it) } ?: AerialSettings.kidsGate
+        val gateExit = f["gateExit"]?.let { it == "1" } ?: AerialSettings.kidsGateExit
         if (!rules.valid || (on && allowed.isEmpty())) return json(state().put("saved", false))
         onMain {
             Restricted.chooseKind(kind)
             f["block"]?.let { Restricted.chooseBlockOthers(it == "1") }
+            AerialSettings.chooseKidsGate(gate)
+            AerialSettings.chooseKidsGateExit(gateExit)
             Restricted.chooseRules(rules)
             Restricted.chooseAllowed(allowed)
             if (on != Restricted.enabled) {

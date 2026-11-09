@@ -207,6 +207,19 @@ object AerialSettings {
     private const val UNLOCK_MS = 10 * 60 * 1000L
 
     /**
+     * What the parental check in Kids and Elders mode asks for (KidsGate): the PIN, unless the
+     * owner chose a question. The PIN is still what opening settings asks for, and still the
+     * fallback when a question is not available.
+     */
+    var kidsGate by mutableStateOf(KidsGate.Pin); private set
+
+    /**
+     * Whether a right answer to [kidsGate] may also leave the mode. Off by default: a question
+     * then only adds time, and leaving still takes the PIN (see KidsLockScreen).
+     */
+    var kidsGateExit by mutableStateOf(false); private set
+
+    /**
      * Minutes of no input on Home before Aerial's screensaver starts (issue #66). The firmware's own
      * screensaver still caps it: Aerial starts just ahead of that one, see MainActivity.
      * [NEVER] starts none, and switches off the system's while that is Aerial's (issue #333).
@@ -246,6 +259,8 @@ object AerialSettings {
         pinHash = prefs.getString("pin_hash", null)
         pinSet = pinHash != null
         pinArrows = prefs.getBoolean("pin_arrows", false)
+        kidsGate = KidsGate.of(prefs.getString("kids_gate", null))
+        kidsGateExit = prefs.getBoolean("kids_gate_exit", false)
         oneRowHome = prefs.getBoolean("one_row_home", true)
         peekNextRow = prefs.getBoolean("peek_next_row", true)
         chosenColumns = prefs.getInt("home_columns", DEFAULT_HOME_COLUMNS).takeIf { it in HOME_COLUMNS } ?: DEFAULT_HOME_COLUMNS
@@ -291,14 +306,34 @@ object AerialSettings {
 
     fun unlock(pin: String): Boolean {
         if (hash(pin) != pinHash) return false
-        unlockedUntil = SystemClock.elapsedRealtime() + UNLOCK_MS
+        grantUnlocked()
         return true
     }
+
+    /**
+     * The same as a right PIN for the next ten minutes. A question does not call this: a child who
+     * answered one may leave the mode when the owner allows it, but settings stay behind the PIN.
+     */
+    fun grantUnlocked() { unlockedUntil = SystemClock.elapsedRealtime() + UNLOCK_MS }
 
     fun relock() { unlockedUntil = 0L }
 
     /** Whether [pin] is the PIN, without unlocking anything: for leaving Kids mode and its time limits. */
     fun pinMatches(pin: String): Boolean = pinHash != null && hash(pin) == pinHash
+
+    /** The gate the parent sees when leaving the mode or adding time; null keeps it on the PIN. */
+    fun kidsGateFor(leaving: Boolean): KidsGate? =
+        if (!kidsGate.asks) null else kidsGate.takeIf { leaving.not() || kidsGateExit }
+
+    fun chooseKidsGate(gate: KidsGate) {
+        kidsGate = gate
+        app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit { putString("kids_gate", gate.key) }
+    }
+
+    fun chooseKidsGateExit(on: Boolean) {
+        kidsGateExit = on
+        app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit { putBoolean("kids_gate_exit", on) }
+    }
 
     /** Sets the PIN, digits or [arrows] (U, D, L, R), or turns it off with null. */
     fun choosePin(pin: String?, arrows: Boolean = false) {

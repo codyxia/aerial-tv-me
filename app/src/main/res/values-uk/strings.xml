@@ -316,4 +316,19 @@
     <string name="kids_blocked">«%s» тут недоступний</string>
     <string name="kids_warn">Лишилося %d хв</string>
     <string name="kids_warn_break">Перерва за %d хв</string>
+
+    <!-- Kids gate: the PIN or a question, when leaving the mode or adding time (settings/KidsGate) -->
+    <string name="st_kids_gate">Перевірка батьків</string>
+    <string name="st_kids_gate_hint">Що запитується під час виходу з дитячого режиму або додавання часу. PIN надійніший: дитина може відповісти на запитання.</string>
+    <string name="st_kids_gate_exit">Вихід за питанням</string>
+    <string name="st_kids_gate_exit_hint">Вимк.: питання лише додає час, для виходу потрібен PIN. Увімк.: правильна відповідь також виходить із режиму.</string>
+    <string name="gate_title">Перевірка батьків</string>
+    <string name="gate_pin">PIN</string>
+    <string name="gate_math">Математика</string>
+    <string name="gate_pinyin">Піньїнь</string>
+    <string name="gate_english">Англійська</string>
+    <string name="gate_common">Загальні знання</string>
+    <string name="gate_hint">Дайте відповідь, щоб продовжити. Питання простіше за PIN, і дитина може відповісти.</string>
+    <string name="gate_wrong">Неправильно. Ось інше питання.</string>
+    <string name="gate_use_pin">Ввести PIN</string>
 </resources>
