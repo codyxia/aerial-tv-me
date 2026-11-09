@@ -47,7 +47,7 @@
 | 屏保：航拍 / 照片（Ken Burns）/ 时钟 / 我的视频，显示时间开关，返回键启动开关 | ✅ | 开始时间比固件屏保早 15 秒（小米的 `screen_saver_timeout`），屏保时保持亮屏 |
 | 手机配置页（换图标、改名、排列主屏幕、上传照片和视频、设天气城市） | ✅ | 完整版的网页和接口（`PhoneServer`），NanoHTTPD + ZXing 3.3.0；端口 8790 被占用时依次用 8791… |
 | HOME 键回到第一个磁贴、开机打开的 App | ✅ | |
-| 儿童与长辈模式：只显示选好的 App、不能整理、退出要家长密码、每天时长 / 最晚到几点 / 休息、锁屏和「再看 N 分钟」、手机页的卡片 | ✅ | `Kids.kt`（完整版的 `Restricted` + `KidsWatch`，时间规则用 `Calendar` 重写，`KidsTimeTest`）、`KidsPanels.kt`（设置面板是一列：选项、进入按钮、App 列表；锁屏）。没有守护：4.4 以下每 2 秒用 `getRunningTasks` 看前台（`GET_TASKS`，maxSdk 20），把没选的 App 拉回来；5.0 以上只能限制桌面。提醒用 Toast。可选的 App 里没有信号源（Lite 没有信号源磁贴） |
+| 儿童与长辈模式：只显示选好的 App、不能整理、退出要家长密码、每天时长 / 最晚到几点 / 休息、锁屏和「再看 N 分钟」、手机页的卡片 | ✅ | `Kids.kt`（完整版的 `Restricted` + `KidsWatch`，时间规则用 `Calendar` 重写，`KidsTimeTest`）、`KidsPanels.kt`（设置面板是一列：选项、进入按钮、App 列表；锁屏）。没有守护：4.4 以下每 2 秒用 `getRunningTasks` 看前台（`GET_TASKS`，maxSdk 20），把没选的 App 拉回来；5.0 以上只能限制桌面。提醒用 Toast。可选的 App 里没有信号源（Lite 没有信号源磁贴）。标准版的答题验证（KidsGate）还没带过来，Lite 仍只用 PIN |
 | 航拍壁纸、我的视频当壁纸、信号源磁贴、应用内升级、系统屏保、4K/杜比画质 | ❌ | 原因见下面「不做的」 |
 | 守护版（无障碍接管 HOME） | ❌ | Lite 只有 standard 版（声明 HOME） |
 

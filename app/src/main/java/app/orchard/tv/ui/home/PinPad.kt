@@ -43,10 +43,15 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.orchard.tv.R
 import app.orchard.tv.settings.AerialSettings
+import app.orchard.tv.settings.Challenges
+import app.orchard.tv.settings.KidsGate
+import app.orchard.tv.settings.label
+import java.util.Locale
 import app.orchard.tv.ui.components.Pressable
 import app.orchard.tv.ui.components.consumeTaps
 import app.orchard.tv.ui.components.dismissOnTap
@@ -67,13 +72,21 @@ private const val PIN_LENGTH = 4
  * The parental PIN (issue #10): four digits, from the remote's number keys or the keypad on screen
  * (most remotes here have no number keys), or four arrow keys (AerialSettings.pinArrows).
  * [PinMode.Create] asks which kind, then asks twice and stores it.
+ *
+ * [gate] is the check Kids and Elders mode asks for when leaving it or adding time (KidsGate):
+ * the PIN unless a question was chosen. Settings and a new PIN always use the PIN itself, and a
+ * question that cannot be made here falls back to it.
  */
 @Composable
-fun PinPad(visible: Boolean, mode: PinMode?, onDone: () -> Unit, onCancel: () -> Unit) {
+fun PinPad(visible: Boolean, mode: PinMode?, gate: KidsGate? = null, onDone: () -> Unit, onCancel: () -> Unit) {
     BackHandler(enabled = visible, onBack = onCancel)
     // The mode is gone once the overlay changes; keep the last one while the panel fades out.
     var shown by remember { mutableStateOf(mode) }
-    if (mode != null) shown = mode
+    var shownGate by remember { mutableStateOf(gate) }
+    if (mode != null) {
+        shown = mode
+        shownGate = gate
+    }
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(tween(200, easing = Motion.EaseOut)) + scaleIn(tween(300, easing = Motion.Drawer), initialScale = 0.94f),
@@ -81,7 +94,115 @@ fun PinPad(visible: Boolean, mode: PinMode?, onDone: () -> Unit, onCancel: () ->
         modifier = Modifier.fillMaxSize(),
     ) {
         // Each opening starts empty: the panel leaves composition while hidden.
-        shown?.let { PinPanel(it, onDone, onCancel) }
+        shown?.let { m ->
+            val g = shownGate
+            if (g != null && g.asks && m != PinMode.Create && AerialSettings.pinSet) ChallengePanel(m, g, onDone, onCancel)
+            else PinPanel(m, onDone, onCancel)
+        }
+    }
+}
+
+/**
+ * A KidsGate question in place of the PIN: one prompt, four choices, answered with the remote.
+ * Three wrong tries hand over to the PIN, and "Use PIN" does so at once; the answer is never
+ * shown. A right answer lets the action go ahead but does not grant the ten-minute unlock a PIN
+ * does — settings stay behind the PIN.
+ */
+@Composable
+private fun ChallengePanel(mode: PinMode, gate: KidsGate, onDone: () -> Unit, onCancel: () -> Unit) {
+    val language = remember { Locale.getDefault().language }
+    var question by remember(gate) { mutableStateOf(Challenges.next(gate, language)) }
+    var tries by remember(gate) { mutableStateOf(0) }
+    var usePin by remember(gate) { mutableStateOf(false) }
+    var wrong by remember(gate) { mutableStateOf(false) }
+    val first = remember { FocusRequester() }
+
+    val current = question
+    if (current == null || usePin) {
+        // No bank for this interface, or too many tries: the PIN is always there.
+        PinPanel(mode, onDone, onCancel)
+        return
+    }
+    LaunchedEffect(current) {
+        withFrameNanos { }
+        runCatching { first.requestFocus() }
+    }
+
+    fun answer(choice: Int) {
+        if (current.isRight(choice)) {
+            onDone()
+            return
+        }
+        wrong = true
+        tries += 1
+        if (tries >= 3) usePin = true
+        else question = Challenges.next(gate, language, avoid = current.prompt)
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .dismissOnTap(onCancel)
+            .background(Color.Black.copy(alpha = 0.45f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier
+                .consumeTaps()
+                .liquidGlass(28.dp)
+                .padding(horizontal = 36.dp, vertical = 26.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            BasicText(stringResource(R.string.gate_title), style = Type.Title)
+            Spacer(Modifier.height(4.dp))
+            BasicText(stringResource(gate.label), style = Type.Caption.copy(color = Palette.SecondaryLabel))
+            Spacer(Modifier.height(18.dp))
+            BasicText(
+                current.prompt,
+                style = Type.Headline.copy(textAlign = TextAlign.Center),
+                modifier = Modifier.widthIn(max = 560.dp),
+            )
+            Spacer(Modifier.height(8.dp))
+            BasicText(
+                stringResource(if (wrong) R.string.gate_wrong else R.string.gate_hint),
+                style = Type.Caption.copy(
+                    color = if (wrong) Palette.Orange else Palette.SecondaryLabel,
+                    textAlign = TextAlign.Center,
+                ),
+                modifier = Modifier.widthIn(max = 440.dp),
+            )
+            Spacer(Modifier.height(18.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                current.options.indices.chunked(2).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        row.forEach { i ->
+                            AnswerKey(current.options[i], onClick = { answer(i) }, focusRequester = if (i == 0) first else null)
+                        }
+                        if (row.size == 1) Spacer(Modifier.size(240.dp, 54.dp))
+                    }
+                }
+            }
+            Spacer(Modifier.height(18.dp))
+            PinKey(onClick = { usePin = true }, width = 160.dp) { fg ->
+                BasicText(stringResource(R.string.gate_use_pin), style = Type.Callout.copy(color = fg))
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnswerKey(text: String, onClick: () -> Unit, focusRequester: FocusRequester? = null) {
+    Pressable(onClick = onClick, focusRequester = focusRequester, focusedScale = 1.05f) { state ->
+        val bg by animateColorAsState(if (state.focused) Palette.Focus else Palette.Fill, tween(140, easing = Motion.EaseOut), label = "gate-answer")
+        Box(Modifier.size(240.dp, 54.dp).smoothBackground({ bg }, 14.dp), contentAlignment = Alignment.Center) {
+            BasicText(
+                text,
+                style = Type.Headline.copy(color = if (state.focused) Palette.OnFocus else Palette.Label),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 14.dp),
+            )
+        }
     }
 }
 

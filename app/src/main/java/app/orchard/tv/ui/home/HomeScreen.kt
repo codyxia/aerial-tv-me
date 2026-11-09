@@ -1074,8 +1074,21 @@ fun HomeScreen(
         KidsLockScreen(
             lock = kidsLock,
             pinOpen = overlay is Overlay.Pin,
-            onParent = { right -> vm.overlay = Overlay.Pin(PinMode.Verify) { vm.overlay = Overlay.None; right() } },
-            onLeave = { Restricted.suspend(); KidsWatch.poke() },
+            onParent = { right ->
+                // A question may add time; leaving is asked again below unless it may leave too.
+                val gate = AerialSettings.kidsGateFor(leaving = false)
+                vm.overlay = Overlay.Pin(PinMode.Verify, gate) { vm.overlay = Overlay.None; right() }
+            },
+            onLeave = {
+                // Verified with the PIN, or with a question the owner lets leave the mode.
+                if (AerialSettings.kidsGateFor(leaving = true) != null || !AerialSettings.kidsGate.asks) {
+                    Restricted.suspend(); KidsWatch.poke()
+                } else {
+                    vm.overlay = Overlay.Pin(PinMode.Verify, null) {
+                        Restricted.suspend(); KidsWatch.poke(); vm.overlay = Overlay.None
+                    }
+                }
+            },
         )
 
         HiddenAppsSheet(
@@ -1112,6 +1125,7 @@ fun HomeScreen(
         PinPad(
             visible = pin != null,
             mode = pin?.mode,
+            gate = pin?.gate,
             onDone = { pin?.onDone?.invoke() },
             onCancel = { vm.overlay = Overlay.None },
         )

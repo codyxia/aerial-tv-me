@@ -307,4 +307,19 @@
     <string name="kids_blocked">「%s」不在这个模式里</string>
     <string name="kids_warn">还能看 %d 分钟</string>
     <string name="kids_warn_break">%d 分钟后休息一下</string>
+
+    <!-- Kids gate: the PIN or a question, when leaving the mode or adding time (settings/KidsGate) -->
+    <string name="st_kids_gate">退出时验证</string>
+    <string name="st_kids_gate_hint">退出儿童模式或增加时间时，家长用什么方式确认。密码最安全；答题孩子也可能答对。</string>
+    <string name="st_kids_gate_exit">答题也能退出</string>
+    <string name="st_kids_gate_exit_hint">关闭时：答题只能增加时间，退出仍要密码。开启时：答对也能退出儿童模式。</string>
+    <string name="gate_title">家长验证</string>
+    <string name="gate_pin">密码</string>
+    <string name="gate_math">数学</string>
+    <string name="gate_pinyin">拼音</string>
+    <string name="gate_english">英语</string>
+    <string name="gate_common">常识</string>
+    <string name="gate_hint">答对才能继续。题目比密码容易，孩子也可能答对。</string>
+    <string name="gate_wrong">不对，换一道。</string>
+    <string name="gate_use_pin">改用密码</string>
 </resources>

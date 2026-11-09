@@ -300,4 +300,19 @@
     <string name="kids_blocked">«%s» здесь недоступно</string>
     <string name="kids_warn">Осталось %d мин</string>
     <string name="kids_warn_break">Перерыв через %d мин</string>
+
+    <!-- Kids gate: the PIN or a question, when leaving the mode or adding time (settings/KidsGate) -->
+    <string name="st_kids_gate">Проверка родителя</string>
+    <string name="st_kids_gate_hint">Что спрашивается при выходе из детского режима или добавлении времени. PIN надёжнее: ребёнок может ответить на вопросы.</string>
+    <string name="st_kids_gate_exit">Выход по вопросу</string>
+    <string name="st_kids_gate_exit_hint">Выкл.: вопрос только добавляет время, для выхода нужен PIN. Вкл.: правильный ответ тоже выходит из режима.</string>
+    <string name="gate_title">Проверка родителя</string>
+    <string name="gate_pin">PIN</string>
+    <string name="gate_math">Математика</string>
+    <string name="gate_pinyin">Пиньинь</string>
+    <string name="gate_english">Английский</string>
+    <string name="gate_common">Общие знания</string>
+    <string name="gate_hint">Ответьте, чтобы продолжить. Вопрос проще PIN, и ребёнок может ответить на него.</string>
+    <string name="gate_wrong">Неверно. Вот другой вопрос.</string>
+    <string name="gate_use_pin">Ввести PIN</string>
 </resources>

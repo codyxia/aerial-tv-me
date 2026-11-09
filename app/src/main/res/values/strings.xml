@@ -308,4 +308,19 @@
     <string name="kids_blocked">%s is not allowed here</string>
     <string name="kids_warn">%d min of TV left</string>
     <string name="kids_warn_break">A break in %d min</string>
+
+    <!-- Kids gate: the PIN or a question, when leaving the mode or adding time (settings/KidsGate) -->
+    <string name="st_kids_gate">Parent Check</string>
+    <string name="st_kids_gate_hint">What is asked when leaving Kids mode or adding time. The PIN is the safe choice; a child may answer the questions.</string>
+    <string name="st_kids_gate_exit">Questions Can Leave</string>
+    <string name="st_kids_gate_exit_hint">Off: a question only adds time, and leaving still takes the PIN. On: a right answer can leave Kids mode too.</string>
+    <string name="gate_title">Parent Check</string>
+    <string name="gate_pin">PIN</string>
+    <string name="gate_math">Math</string>
+    <string name="gate_pinyin">Pinyin</string>
+    <string name="gate_english">English</string>
+    <string name="gate_common">Common Sense</string>
+    <string name="gate_hint">Answer to continue. A question is easier than the PIN; a child may answer it.</string>
+    <string name="gate_wrong">Not quite. Here is another.</string>
+    <string name="gate_use_pin">Use PIN</string>
 </resources>

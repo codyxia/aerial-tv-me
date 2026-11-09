@@ -26,6 +26,7 @@ import app.orchard.tv.apps.TileArtFactory
 import app.orchard.tv.apps.folderEntry
 import app.orchard.tv.apps.sourceEntry
 import app.orchard.tv.settings.AerialSettings
+import app.orchard.tv.settings.KidsGate
 import app.orchard.tv.settings.Restricted
 import app.orchard.tv.system.XgimiBoost
 import app.orchard.tv.system.Brightness
@@ -62,7 +63,8 @@ sealed interface Overlay {
     data class Folder(val id: String) : Overlay
     data object HiddenApps : Overlay
     data object Wallpaper : Overlay
-    data class Pin(val mode: PinMode, val onDone: () -> Unit) : Overlay
+    /** [gate]: the check Kids mode asks for; null keeps it on the PIN. */
+    data class Pin(val mode: PinMode, val gate: KidsGate? = null, val onDone: () -> Unit) : Overlay
     /** Setting up Kids and Elders mode (Restricted), from Personalize. */
     data object Kids : Overlay
 }
@@ -414,7 +416,8 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
      * standby or Home.
      */
     fun leaveKidsMode() {
-        overlay = Overlay.Pin(PinMode.Unlock) {
+        // A question may leave the mode only when the owner allowed it; otherwise the PIN still does.
+        overlay = Overlay.Pin(PinMode.Unlock, AerialSettings.kidsGateFor(leaving = true)) {
             Restricted.suspend()
             overlay = Overlay.None
         }

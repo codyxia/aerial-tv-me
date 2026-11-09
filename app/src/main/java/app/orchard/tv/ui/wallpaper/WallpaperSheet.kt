@@ -71,11 +71,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import app.orchard.tv.R
 import app.orchard.tv.settings.AerialSettings
+import app.orchard.tv.settings.KidsGate
 import app.orchard.tv.settings.Restricted
 import app.orchard.tv.settings.RestrictedKind
 import app.orchard.tv.settings.FocusStyle
 import app.orchard.tv.settings.UiSounds
 import app.orchard.tv.settings.Effects
+import app.orchard.tv.settings.label
+import java.util.Locale
 import app.orchard.tv.system.Sounds
 import app.orchard.tv.ui.components.Pressable
 import app.orchard.tv.ui.components.consumeTaps
@@ -352,6 +355,29 @@ fun WallpaperSheet(
                 Group(stringResource(R.string.st_pin_hint)) { note ->
                     SettingRow(R.string.st_pin, null, note, first = true) {
                         PinChoice(onPin, onFocused = { scope.launch { scroll.animateScrollTo(scroll.maxValue) } })
+                    }
+                    if (AerialSettings.pinSet) {
+                        SettingRow(R.string.st_kids_gate, stringResource(R.string.st_kids_gate_hint), note) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                KidsGate.available(Locale.getDefault().language).forEach { gate ->
+                                    Chip(stringResource(gate.label), on = AerialSettings.kidsGate == gate) {
+                                        AerialSettings.chooseKidsGate(gate)
+                                    }
+                                }
+                            }
+                        }
+                        if (AerialSettings.kidsGate.asks) {
+                            SettingRow(R.string.st_kids_gate_exit, stringResource(R.string.st_kids_gate_exit_hint), note) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Chip(stringResource(R.string.st_on), on = AerialSettings.kidsGateExit) {
+                                        AerialSettings.chooseKidsGateExit(true)
+                                    }
+                                    Chip(stringResource(R.string.st_off), on = !AerialSettings.kidsGateExit) {
+                                        AerialSettings.chooseKidsGateExit(false)
+                                    }
+                                }
+                            }
+                        }
                     }
                     SettingRow(R.string.st_kids, stringResource(R.string.st_kids_hint), note) {
                         // The last row that takes focus: bring the note under it into view too.
